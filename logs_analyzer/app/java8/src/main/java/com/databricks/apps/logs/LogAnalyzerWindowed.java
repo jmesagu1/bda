@@ -1,6 +1,5 @@
 package com.databricks.apps.logs;
 
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import scala.Tuple2;
 import scala.Tuple4;
@@ -26,14 +25,13 @@ public class LogAnalyzerWindowed implements Serializable {
             Functions.responseCodeCount(accessLogs)
                 .take(100);
 
-        JavaPairRDD<String, Long> ipAddressCounts =
-            Functions.ipAddressCount(accessLogs);
-        List<String> ipAddresses = Functions.filterIPAddress(ipAddressCounts)
-            .take(100);
+        List<Tuple2<String, Long>> ipAddresses =
+            Functions.ipAddressCount(accessLogs)
+            .top(100, new Functions.ValueComparator<>(Comparator.<Long>naturalOrder().reversed()));
 
         List<Tuple2<String, Long>> topEndpoints =
             Functions.endpointCount(accessLogs)
-                .top(10, new Functions.ValueComparator<>(Comparator.<Long>naturalOrder()));
+                .top(10, new Functions.ValueComparator<>(Comparator.<Long>naturalOrder().reversed()));
 
         logStatistics = new LogStatistics(contentSizeStats, responseCodeToCount,
             ipAddresses, topEndpoints);

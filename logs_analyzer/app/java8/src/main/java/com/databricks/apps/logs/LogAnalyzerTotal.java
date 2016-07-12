@@ -17,7 +17,7 @@ public class LogAnalyzerTotal implements Serializable {
   private static final AtomicLong runningMin = new AtomicLong(Long.MAX_VALUE);
   private static final AtomicLong runningMax = new AtomicLong(Long.MIN_VALUE);
   private static List<Tuple2<Integer, Long>> currentResponseCodeCounts = null;
-  private static List<String> currentIPAddresses = null;
+  private static List<Tuple2<String, Long>> currentIPAddresses = null;
   private static List<Tuple2<String, Long>> currentTopEndpoints = null;
 
   public void processAccessLogs(JavaDStream<ApacheAccessLog> accessLogsDStream) {
@@ -35,6 +35,8 @@ public class LogAnalyzerTotal implements Serializable {
         }
     );
 
+    System.out.println(accessLogsDStream.count());
+
     // A DStream of Resonse Code Counts;
     JavaPairDStream<Integer, Long> responseCodeCountDStream = accessLogsDStream
         .transformToPair(Functions::responseCodeCount)
@@ -45,12 +47,11 @@ public class LogAnalyzerTotal implements Serializable {
     });
 
     // A DStream of ipAddressCounts.
-    JavaDStream<String> ipAddressesDStream = accessLogsDStream
+    JavaPairDStream<String, Long> ipAddressesDStream = accessLogsDStream
         .transformToPair(Functions::ipAddressCount)
-        .updateStateByKey(Functions.COMPUTE_RUNNING_SUM)
-        .transform(Functions::filterIPAddress);
-    ipAddressesDStream.foreachRDD(rdd -> {
-      currentIPAddresses = rdd.take(100);
+        .updateStateByKey(Functions.COMPUTE_RUNNING_SUM);
+      ipAddressesDStream.foreachRDD(rdd -> {
+          currentIPAddresses = rdd.takeOrdered(100, new Functions.ValueComparator<>(Comparator.<Long>naturalOrder().reversed()));
       return null;
     });
 
@@ -58,9 +59,10 @@ public class LogAnalyzerTotal implements Serializable {
     JavaPairDStream<String, Long> endpointCountsDStream = accessLogsDStream
         .transformToPair(Functions::endpointCount)
         .updateStateByKey(Functions.COMPUTE_RUNNING_SUM);
+
     endpointCountsDStream.foreachRDD(rdd -> {
       currentTopEndpoints = rdd.takeOrdered(10,
-          new Functions.ValueComparator<>(Comparator.<Long>naturalOrder()));
+          new Functions.ValueComparator<>(Comparator.<Long>naturalOrder().reversed()));
       return null;
     });
   }

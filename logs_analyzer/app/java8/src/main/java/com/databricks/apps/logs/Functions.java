@@ -66,11 +66,11 @@ public class Functions {
         .reduceByKey(SUM_REDUCER);
   }
 
-  public static final JavaRDD<String> filterIPAddress(
+  public static final JavaPairRDD<String, Long> filterIPAddress(
       JavaPairRDD<String, Long> ipAddressCount) {
     return ipAddressCount
-        .filter(tuple -> tuple._2() > 10)
-        .map(Tuple2::_1);
+            .sortByKey()
+            .filter(tuple -> tuple._2() > 10);
   }
 
   public static final JavaPairRDD<String, Long> endpointCount(

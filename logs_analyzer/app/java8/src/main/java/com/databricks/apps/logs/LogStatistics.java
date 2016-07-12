@@ -16,12 +16,12 @@ public class LogStatistics implements Serializable {
 
   private Tuple4<Long, Long, Long, Long> contentSizeStats;
   private List<Tuple2<Integer, Long>> responseCodeToCount;
-  private List<String> ipAddresses;
+  private List<Tuple2<String, Long>> ipAddresses;
   private List<Tuple2<String, Long>> topEndpoints;
 
   public LogStatistics(Tuple4<Long, Long, Long, Long> contentSizeStats,
                        List<Tuple2<Integer, Long>> responseCodeToCount,
-                       List<String> ipAddresses,
+                       List<Tuple2<String, Long>> ipAddresses,
                        List<Tuple2<String, Long>> topEndpoints) {
     this.contentSizeStats = contentSizeStats;
     this.responseCodeToCount = responseCodeToCount;
@@ -41,7 +41,7 @@ public class LogStatistics implements Serializable {
     return responseCodeCount;
   }
 
-  public List<String> getIpAddresses() {
+  public  List<Tuple2<String, Long>> getIpAddresses() {
     return ipAddresses;
   }
 

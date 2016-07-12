@@ -1,0 +1,61 @@
+var pie = new d3pie("${IDPIE}", {
+	"header": {
+		"title": {
+			"fontSize": 23,
+			"font": "open sans"
+		}
+	},
+	"size": {
+		"canvasWidth": ${with},
+		"pieInnerRadius": "35%",
+		"pieOuterRadius": "100%"
+	},
+	"data": {
+	        "sortOrder": "value-desc",
+		    ${CONTENT}
+	},
+	"labels": {
+    		"outer": {
+    			"pieDistance": 20
+    		},
+    		"inner": {
+    			"hideWhenLessThanPercentage": 3
+    		},
+    		"mainLabel": {
+    			"fontSize": 11
+    		},
+    		"percentage": {
+    			"color": "#ffffff",
+    			"decimalPlaces": 0
+    		},
+    		"value": {
+    			"color": "#adadad",
+    			"fontSize": 11
+    		},
+    		"lines": {
+    			"enabled": true
+    		},
+    		"truncation": {
+    			"enabled": true,
+    			"truncateLength": 40
+    		}
+    	},
+	"tooltips": {
+		"enabled": true,
+		"type": "placeholder",
+		"string": "{label}: {value}, {percentage}%"
+	},
+	"effects": {
+		"pullOutSegmentOnClick": {
+			"effect": "linear",
+			"speed": 400,
+			"size": 20
+		}
+	},
+	"misc": {
+		"gradient": {
+			"enabled": true,
+			"percentage": 100
+		}
+	}
+});
